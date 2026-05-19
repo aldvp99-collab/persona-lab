@@ -5,6 +5,7 @@ import type {
   SimulationResult,
   OptionResult,
   SegmentBreakdown,
+  AttrType,
   AgeGroup,
   Job,
   IncomeLevel,
@@ -21,7 +22,7 @@ function emptySegments(): SegmentBreakdown {
 }
 
 function topAttributes(segments: SegmentBreakdown, total: number) {
-  const attrs: { type: 'age' | 'job' | 'income'; key: string; impact: number }[] = [];
+  const attrs: { type: AttrType; key: string; impact: number }[] = [];
   for (const [age, count] of Object.entries(segments.age) as [AgeGroup, number][]) {
     if (count > 0) attrs.push({ type: 'age', key: age, impact: count / total });
   }

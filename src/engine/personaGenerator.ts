@@ -1,11 +1,7 @@
 import type { Persona, AgeGroup, Gender, Region, Job, IncomeLevel, Interest } from '../types';
-import {
-  AGE_DIST,
-  GENDER_DIST,
-  REGION_DIST,
-  JOB_DIST_BY_AGE,
-  INCOME_DIST_BY_AGE,
-} from '../data/distributionTable';
+import type { DistributionData } from '../data/distributionTable';
+
+type Segment = Partial<Pick<Persona, 'age' | 'gender' | 'region' | 'job' | 'income'>>;
 
 function weightedRandom<T extends string>(dist: Record<T, number>): T {
   const r = Math.random();
@@ -49,14 +45,21 @@ function deriveBrandLoyalty(income: IncomeLevel): number {
   return Math.min(1, Math.max(0, base[income] + (Math.random() - 0.5) * 0.1));
 }
 
-export function generatePersonas(count: number): Persona[] {
+export function generatePersonas(
+  count: number,
+  distributions: DistributionData,
+  segment?: Segment,
+): Persona[] {
+  const { AGE_DIST, GENDER_DIST, REGION_DIST, JOB_DIST_BY_AGE, INCOME_DIST_BY_AGE } = distributions;
   const personas: Persona[] = [];
+
   for (let i = 0; i < count; i++) {
-    const age = weightedRandom<AgeGroup>(AGE_DIST);
-    const gender = weightedRandom<Gender>(GENDER_DIST);
-    const region = weightedRandom<Region>(REGION_DIST);
-    const job = weightedRandom<Job>(JOB_DIST_BY_AGE[age]);
-    const income = weightedRandom<IncomeLevel>(INCOME_DIST_BY_AGE[age]);
+    // segment 지정 속성은 고정값 사용, 나머지는 분포 샘플링
+    const age    = segment?.age    ?? weightedRandom<AgeGroup>(AGE_DIST);
+    const gender = segment?.gender ?? weightedRandom<Gender>(GENDER_DIST);
+    const region = segment?.region ?? weightedRandom<Region>(REGION_DIST);
+    const job    = segment?.job    ?? weightedRandom<Job>(JOB_DIST_BY_AGE[age]);
+    const income = segment?.income ?? weightedRandom<IncomeLevel>(INCOME_DIST_BY_AGE[age]);
     const interests = sampleInterests(age, income);
 
     personas.push({

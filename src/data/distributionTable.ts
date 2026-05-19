@@ -1,5 +1,13 @@
 import type { AgeGroup, Gender, Region, Job, IncomeLevel } from '../types';
 
+export interface DistributionData {
+  AGE_DIST: Record<AgeGroup, number>;
+  GENDER_DIST: Record<Gender, number>;
+  REGION_DIST: Record<Region, number>;
+  JOB_DIST_BY_AGE: Record<AgeGroup, Record<Job, number>>;
+  INCOME_DIST_BY_AGE: Record<AgeGroup, Record<IncomeLevel, number>>;
+}
+
 // e-Stat 人口推計 2023年10月1日現在 (統計表ID: 0003412726) — 10歳以上の年齢分布を正規化 (80s = 80歳以上)
 export const AGE_DIST: Record<AgeGroup, number> = {
   '10s': 0.090,
@@ -52,4 +60,12 @@ export const INCOME_DIST_BY_AGE: Record<AgeGroup, Record<IncomeLevel, number>> =
   '60s': { low: 0.20, mid_low: 0.28, mid: 0.25, mid_high: 0.18, high: 0.09 },
   '70s': { low: 0.30, mid_low: 0.32, mid: 0.22, mid_high: 0.11, high: 0.05 },
   '80s': { low: 0.40, mid_low: 0.32, mid: 0.18, mid_high: 0.07, high: 0.03 },
+};
+
+export const STATIC_DISTRIBUTIONS: DistributionData = {
+  AGE_DIST,
+  GENDER_DIST,
+  REGION_DIST,
+  JOB_DIST_BY_AGE,
+  INCOME_DIST_BY_AGE,
 };

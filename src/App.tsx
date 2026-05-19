@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSimulationStore } from './store/simulationStore';
 import { useLangStore } from './store/langStore';
-import { generatePersonas } from './engine/personaGenerator';
-import { simulateChoices } from './engine/reactionEngine';
-import { aggregateResults } from './engine/aggregator';
+import { STATIC_DISTRIBUTIONS } from './data/distributionTable';
+import type { DistributionData } from './data/distributionTable';
+import { tryFetchDistributions } from './services/eStatApi';
+import type { DataSource } from './services/eStatApi';
 import InputForm from './components/InputForm/InputForm';
 import Dashboard from './components/Dashboard/Dashboard';
 import ReportPanel from './components/ReportPanel/ReportPanel';
@@ -13,24 +14,66 @@ export default function App() {
   const { lang, t, setLang } = useLangStore();
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(true);
 
-  const handleRun = async () => {
+  const workerRef = useRef<Worker | null>(null);
+  const distributionsRef = useRef<DistributionData>(STATIC_DISTRIBUTIONS);
+  const [dataSource, setDataSource] = useState<DataSource>('static');
+
+  // 앱 마운트 시 e-Stat API로 최신 분포 데이터 fetch 시도
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_ESTAT_API_KEY as string | undefined;
+    let cancelled = false;
+
+    if (apiKey?.trim()) {
+      tryFetchDistributions(apiKey).then(({ distributions, source }) => {
+        if (cancelled) return;
+        distributionsRef.current = distributions;
+        setDataSource(source);
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      workerRef.current?.terminate();
+    };
+  }, []);
+
+  const handleRun = () => {
+    workerRef.current?.terminate();
     reset();
     setStatus('running');
     setMobileSettingsOpen(false);
-    try {
-      await new Promise((r) => setTimeout(r, 0));
-      const personas = generatePersonas(config.populationSize);
-      const choices = simulateChoices(personas, config.options);
-      const aggregated = aggregateResults(personas, choices, config.options);
-      setResult(aggregated);
-      setStatus('done');
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t.errorMsg);
+
+    const worker = new Worker(
+      new URL('./engine/simulationWorker.ts', import.meta.url),
+      { type: 'module' },
+    );
+    workerRef.current = worker;
+
+    worker.onmessage = ({ data }) => {
+      if (data.type === 'done') {
+        setResult(data.result);
+        setStatus('done');
+      } else {
+        setError(data.message ?? t.errorMsg);
+        setStatus('error');
+      }
+      worker.terminate();
+      workerRef.current = null;
+    };
+
+    worker.onerror = (e) => {
+      setError(e.message ?? t.errorMsg);
       setStatus('error');
-    }
+      worker.terminate();
+      workerRef.current = null;
+    };
+
+    worker.postMessage({ config, distributions: distributionsRef.current });
   };
 
   const handleReset = () => {
+    workerRef.current?.terminate();
+    workerRef.current = null;
     reset();
     setMobileSettingsOpen(true);
   };
@@ -53,6 +96,16 @@ export default function App() {
 
           {/* 우측 컨트롤 */}
           <div className="flex items-center gap-2.5 shrink-0">
+            {/* 데이터 소스 배지 */}
+            <span className={`hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border ${
+              dataSource === 'api'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-gray-50 text-gray-400 border-gray-200'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${dataSource === 'api' ? 'bg-emerald-400' : 'bg-gray-300'}`} />
+              {dataSource === 'api' ? t.dataSourceApi : t.dataSourceStatic}
+            </span>
+
             {/* 언어 토글 */}
             <div className="flex rounded-lg border border-gray-200 overflow-hidden text-[13px] font-semibold">
               <button

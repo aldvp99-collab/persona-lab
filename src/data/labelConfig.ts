@@ -1,4 +1,5 @@
 import type { Lang } from '../i18n/strings';
+import type { AttrType } from '../types';
 
 export const AGE_LABEL: Record<Lang, Record<string, string>> = {
   ko: { '10s': '10대', '20s': '20대', '30s': '30대', '40s': '40대', '50s': '50대', '60s': '60대', '70s': '70대', '80s': '80세 이상' },
@@ -24,3 +25,8 @@ export const GENDER_LABEL: Record<Lang, Record<string, string>> = {
   ko: { male: '남성', female: '여성' },
   ja: { male: '男性', female: '女性' },
 };
+
+// 여러 파일에서 반복되는 { age: AGE_LABEL[lang], job: JOB_LABEL[lang], income: INCOME_LABEL[lang] } 패턴을 통합
+export function attrLabelMaps(lang: Lang): Record<AttrType, Record<string, string>> {
+  return { age: AGE_LABEL[lang], job: JOB_LABEL[lang], income: INCOME_LABEL[lang] };
+}

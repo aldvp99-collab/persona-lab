@@ -55,13 +55,15 @@ export interface SegmentBreakdown {
   income: Record<IncomeLevel, number>;
 }
 
+export type AttrType = 'age' | 'job' | 'income';
+
 export interface OptionResult {
   optionId: string;
   label: string;
   count: number;
   percentage: number;
   segments: SegmentBreakdown;
-  topAttributes: { type: 'age' | 'job' | 'income'; key: string; impact: number }[];
+  topAttributes: { type: AttrType; key: string; impact: number }[];
 }
 
 export interface SimulationResult {
