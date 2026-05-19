@@ -58,6 +58,17 @@ const ko = {
   reportAdvice1: (winner: string) => `${winner} 방향을 우선 검토하되, 세그먼트 분포를 참고해 타깃 고객층과 일치하는지 확인하세요.`,
   reportAdvice2: (n: number, pct: string) => `무응답 ${n}명 (${pct})이 발생했습니다. 선택지 매력도 개선을 고려하세요.`,
   reportFooter: '이 리포트는 규칙 기반 자동 요약입니다. Claude API 연동 시 더 깊은 인사이트를 제공할 수 있습니다.',
+  // targetSegment
+  segmentTitle: '타겟 세그먼트 (선택사항)',
+  segmentNone: '제한 없음',
+  segmentAge: '연령대',
+  segmentGender: '성별',
+  segmentRegion: '지역',
+  segmentJob: '직업',
+  segmentIncome: '소득',
+  // data source badge
+  dataSourceApi: 'e-Stat API 연결됨',
+  dataSourceStatic: '내장 데이터',
   // Landing / idle
   landingTagline: '가상 페르소나로 일본 소비자의 반응을 미리 예측합니다',
   feat1Title: '페르소나 생성',
@@ -133,6 +144,17 @@ const ja = {
   reportAdvice1: (winner: string) => `${winner}の方向を優先的に検討しつつ、セグメント分布を参考にターゲット顧客層と一致するか確認してください。`,
   reportAdvice2: (n: number, pct: string) => `無回答${n}人（${pct}）が発生しました。選択肢の魅力度改善を検討してください。`,
   reportFooter: 'このレポートはルールベースの自動要約です。Claude API連携でより深いインサイトを提供できます。',
+  // targetSegment
+  segmentTitle: 'ターゲットセグメント（任意）',
+  segmentNone: '絞り込みなし',
+  segmentAge: '年齢層',
+  segmentGender: '性別',
+  segmentRegion: '地域',
+  segmentJob: '職業',
+  segmentIncome: '所得',
+  // data source badge
+  dataSourceApi: 'e-Stat API 接続済み',
+  dataSourceStatic: '内蔵データ',
   // Landing / idle
   landingTagline: '仮想ペルソナで日本消費者の反応を事前に予測します',
   feat1Title: 'ペルソナ生成',

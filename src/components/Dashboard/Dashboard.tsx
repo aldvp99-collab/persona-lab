@@ -4,34 +4,36 @@ import {
 } from 'recharts';
 import { useSimulationStore } from '../../store/simulationStore';
 import { useLangStore } from '../../store/langStore';
-import { AGE_LABEL, JOB_LABEL, INCOME_LABEL } from '../../data/labelConfig';
+import { attrLabelMaps } from '../../data/labelConfig';
+import type { AttrType } from '../../types';
+import type { AgeGroup, IncomeLevel } from '../../types';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6'];
+
+const AGE_GROUPS: AgeGroup[] = ['10s', '20s', '30s', '40s', '50s', '60s', '70s', '80s'];
+const INCOME_GROUPS: IncomeLevel[] = ['low', 'mid_low', 'mid', 'mid_high', 'high'];
 
 export default function Dashboard() {
   const { result } = useSimulationStore();
   const { lang, t } = useLangStore();
   if (!result) return null;
 
-  const ageGroups = ['10s', '20s', '30s', '40s', '50s', '60s', '70s', '80s'] as const;
-  const ageData = ageGroups.map((age) => ({
-    age: AGE_LABEL[lang][age],
+  const maps = attrLabelMaps(lang);
+
+  const ageData = AGE_GROUPS.map((age) => ({
+    age: maps.age[age],
     ...Object.fromEntries(result.options.map((opt) => [opt.label, opt.segments.age[age]])),
   }));
 
-  const incomeGroups = ['low', 'mid_low', 'mid', 'mid_high', 'high'] as const;
-  const incomeData = incomeGroups.map((inc) => ({
-    income: INCOME_LABEL[lang][inc],
+  const incomeData = INCOME_GROUPS.map((inc) => ({
+    income: maps.income[inc],
     ...Object.fromEntries(result.options.map((opt) => [opt.label, opt.segments.income[inc]])),
   }));
 
-  const attrTypeLabel = (type: 'age' | 'job' | 'income') =>
+  const attrTypeLabel = (type: AttrType) =>
     ({ age: t.attrAge, job: t.attrJob, income: t.attrIncome })[type];
 
-  const attrValueLabel = (type: 'age' | 'job' | 'income', key: string) => {
-    const maps = { age: AGE_LABEL[lang], job: JOB_LABEL[lang], income: INCOME_LABEL[lang] };
-    return maps[type][key] ?? key;
-  };
+  const attrValueLabel = (type: AttrType, key: string) => maps[type][key] ?? key;
 
   const pieData = result.options.map((opt) => ({ name: opt.label, value: opt.count }));
 

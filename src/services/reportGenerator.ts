@@ -1,24 +1,25 @@
-import type { SimulationConfig, SimulationResult, OptionResult } from '../types';
+import type { SimulationConfig, SimulationResult, OptionResult, AttrType } from '../types';
 import type { Lang, Strings } from '../i18n/strings';
 import { strings } from '../i18n/strings';
-import { AGE_LABEL, JOB_LABEL, INCOME_LABEL } from '../data/labelConfig';
+import { attrLabelMaps } from '../data/labelConfig';
 
 function fmt(n: number) { return `${n.toFixed(1)}%`; }
 
-function attrLabel(attr: { type: 'age' | 'job' | 'income'; key: string }, lang: Lang, t: Strings): string {
+function attrLabel(attr: { type: AttrType; key: string }, lang: Lang, t: Strings): string {
   const typeStr = { age: t.attrAge, job: t.attrJob, income: t.attrIncome }[attr.type];
-  const maps = { age: AGE_LABEL[lang], job: JOB_LABEL[lang], income: INCOME_LABEL[lang] };
+  const maps = attrLabelMaps(lang);
   return `${typeStr}: ${maps[attr.type][attr.key] ?? attr.key}`;
 }
 
 function topSegLine(opt: OptionResult, lang: Lang, t: Strings): string {
-  const topAge   = Object.entries(opt.segments.age).sort(([,a],[,b]) => b - a)[0];
-  const topJob   = Object.entries(opt.segments.job).sort(([,a],[,b]) => b - a)[0];
-  const topInc   = Object.entries(opt.segments.income).sort(([,a],[,b]) => b - a)[0];
+  const maps = attrLabelMaps(lang);
+  const topAge = Object.entries(opt.segments.age).sort(([, a], [, b]) => b - a)[0];
+  const topJob = Object.entries(opt.segments.job).sort(([, a], [, b]) => b - a)[0];
+  const topInc = Object.entries(opt.segments.income).sort(([, a], [, b]) => b - a)[0];
   return [
-    `${t.attrAge} ${AGE_LABEL[lang][topAge[0]] ?? topAge[0]}`,
-    `${t.attrJob} ${JOB_LABEL[lang][topJob[0]] ?? topJob[0]}`,
-    `${t.attrIncome} ${INCOME_LABEL[lang][topInc[0]] ?? topInc[0]}`,
+    `${t.attrAge} ${maps.age[topAge[0]] ?? topAge[0]}`,
+    `${t.attrJob} ${maps.job[topJob[0]] ?? topJob[0]}`,
+    `${t.attrIncome} ${maps.income[topInc[0]] ?? topInc[0]}`,
   ].join(' / ');
 }
 

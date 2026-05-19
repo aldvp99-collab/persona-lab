@@ -1,17 +1,23 @@
 import { useRef } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { useLangStore } from '../../store/langStore';
-import type { SimulationOption } from '../../types';
+import { AGE_LABEL, GENDER_LABEL, REGION_LABEL, JOB_LABEL, INCOME_LABEL } from '../../data/labelConfig';
+import type { SimulationOption, AgeGroup, Gender, Region, Job, IncomeLevel } from '../../types';
 
 const AVAILABLE_TAGS = ['cheap', 'premium', 'feature-rich', 'simple', 'trendy', 'practical'];
 const MIN_POP = 100;
 const MAX_POP = 100000;
 
+const AGE_KEYS:    AgeGroup[]    = ['10s','20s','30s','40s','50s','60s','70s','80s'];
+const GENDER_KEYS: Gender[]      = ['male','female'];
+const REGION_KEYS: Region[]      = ['hokkaido','tohoku','kanto','chubu','kinki','chugoku_shikoku','kyushu','okinawa'];
+const JOB_KEYS:    Job[]         = ['office','professional','self_employed','student','homemaker','service','other'];
+const INCOME_KEYS: IncomeLevel[] = ['low','mid_low','mid','mid_high','high'];
+
 export default function InputForm({ onRun }: { onRun: () => void }) {
   const { config, setConfig, status } = useSimulationStore();
-  const { t } = useLangStore();
+  const { lang, t } = useLangStore();
 
-  // 비제어 입력: ref로 직접 DOM 값을 읽고, 슬라이더가 움직일 때만 imperatively 동기화
   const popInputRef = useRef<HTMLInputElement>(null);
 
   const commitPop = (raw: string) => {
@@ -24,7 +30,6 @@ export default function InputForm({ onRun }: { onRun: () => void }) {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const n = Number(e.target.value);
     setConfig({ populationSize: n });
-    // 입력창이 포커스 상태가 아닐 때만 동기화 (타이핑 중 방해 금지)
     if (popInputRef.current && document.activeElement !== popInputRef.current) {
       popInputRef.current.value = String(n);
     }
@@ -44,7 +49,6 @@ export default function InputForm({ onRun }: { onRun: () => void }) {
   };
 
   const addOption = () => {
-    const { lang } = useLangStore.getState();
     const id = String.fromCharCode(65 + config.options.length);
     const suffix = lang === 'ja' ? '案' : '안';
     setConfig({
@@ -56,6 +60,18 @@ export default function InputForm({ onRun }: { onRun: () => void }) {
     if (config.options.length <= 2) return;
     setConfig({ options: config.options.filter((_, i) => i !== index) });
   };
+
+  // targetSegment helpers
+  const seg = config.targetSegment ?? {};
+
+  function setSegment<K extends keyof typeof seg>(key: K, val: string) {
+    const next = { ...seg, [key]: val || undefined };
+    // 모든 값이 비어 있으면 targetSegment 자체를 undefined로
+    const hasAny = Object.values(next).some(Boolean);
+    setConfig({ targetSegment: hasAny ? next : undefined });
+  }
+
+  const selectClass = 'w-full border border-gray-200 rounded-lg px-2.5 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition';
 
   const isRunning = status === 'running';
 
@@ -137,7 +153,68 @@ export default function InputForm({ onRun }: { onRun: () => void }) {
         ))}
       </div>
 
-      {/* 인원 수 — 슬라이더 + 직접 입력 */}
+      {/* 타겟 세그먼트 */}
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-3">{t.segmentTitle}</label>
+        <div className="grid grid-cols-2 gap-2">
+          {/* 연령대 */}
+          <div>
+            <p className="text-[11px] text-gray-400 mb-1">{t.segmentAge}</p>
+            <select className={selectClass} value={seg.age ?? ''} onChange={(e) => setSegment('age', e.target.value)}>
+              <option value="">{t.segmentNone}</option>
+              {AGE_KEYS.map((k) => (
+                <option key={k} value={k}>{AGE_LABEL[lang][k]}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 성별 */}
+          <div>
+            <p className="text-[11px] text-gray-400 mb-1">{t.segmentGender}</p>
+            <select className={selectClass} value={seg.gender ?? ''} onChange={(e) => setSegment('gender', e.target.value)}>
+              <option value="">{t.segmentNone}</option>
+              {GENDER_KEYS.map((k) => (
+                <option key={k} value={k}>{GENDER_LABEL[lang][k]}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 지역 */}
+          <div>
+            <p className="text-[11px] text-gray-400 mb-1">{t.segmentRegion}</p>
+            <select className={selectClass} value={seg.region ?? ''} onChange={(e) => setSegment('region', e.target.value)}>
+              <option value="">{t.segmentNone}</option>
+              {REGION_KEYS.map((k) => (
+                <option key={k} value={k}>{REGION_LABEL[lang][k]}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 직업 */}
+          <div>
+            <p className="text-[11px] text-gray-400 mb-1">{t.segmentJob}</p>
+            <select className={selectClass} value={seg.job ?? ''} onChange={(e) => setSegment('job', e.target.value)}>
+              <option value="">{t.segmentNone}</option>
+              {JOB_KEYS.map((k) => (
+                <option key={k} value={k}>{JOB_LABEL[lang][k]}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 소득 */}
+          <div className="col-span-2">
+            <p className="text-[11px] text-gray-400 mb-1">{t.segmentIncome}</p>
+            <select className={selectClass} value={seg.income ?? ''} onChange={(e) => setSegment('income', e.target.value)}>
+              <option value="">{t.segmentNone}</option>
+              {INCOME_KEYS.map((k) => (
+                <option key={k} value={k}>{INCOME_LABEL[lang][k]}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* 인원 수 */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <label className="text-sm font-semibold text-gray-700">{t.populationLabel}</label>
