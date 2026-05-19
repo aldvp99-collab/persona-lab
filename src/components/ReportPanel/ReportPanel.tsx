@@ -1,15 +1,17 @@
+import { useState } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { useLangStore } from '../../store/langStore';
 import { generateReport } from '../../services/reportGenerator';
 
 export default function ReportPanel() {
-  const { result, config, report, setReport, status, setStatus, setError, error } = useSimulationStore();
+  const { result, config, report, setReport, setError, error } = useSimulationStore();
   const { lang, t } = useLangStore();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   if (!result) return null;
 
   const handleGenerate = async () => {
-    setStatus('running');
+    setIsGenerating(true);
     setError(null);
     try {
       const text = await generateReport(config, result, lang);
@@ -17,11 +19,9 @@ export default function ReportPanel() {
     } catch (e) {
       setError(e instanceof Error ? e.message : t.errorMsg);
     } finally {
-      setStatus('done');
+      setIsGenerating(false);
     }
   };
-
-  const isGenerating = status === 'running';
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-4">

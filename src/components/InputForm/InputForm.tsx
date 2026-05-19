@@ -44,9 +44,11 @@ export default function InputForm({ onRun }: { onRun: () => void }) {
   };
 
   const addOption = () => {
+    const { lang } = useLangStore.getState();
     const id = String.fromCharCode(65 + config.options.length);
+    const suffix = lang === 'ja' ? '案' : '안';
     setConfig({
-      options: [...config.options, { id, label: id, description: '', tags: [] }],
+      options: [...config.options, { id, label: `${id}${suffix}`, description: '', tags: [] }],
     });
   };
 

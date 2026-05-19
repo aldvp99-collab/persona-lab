@@ -49,6 +49,7 @@ const ko = {
   reportHypothesisNone: '(가설이 입력되지 않아 검증을 생략합니다.)',
   reportHypothesisLabel: '입력 가설',
   reportHypothesisResult: '결과',
+  reportHypothesisWinnerLine: (label: string, pct: string) => `${label}(${pct})이 가장 높은 선택을 받았습니다.`,
   reportHypothesisNote: '이 방향과의 일치 여부는 결과 수치를 바탕으로 직접 판단하세요.',
   reportTie: (a: string, b: string, pa: string, pb: string) =>
     `**${a}**와 **${b}**이 각각 ${pa}, ${pb}로 거의 동률입니다. 유의미한 우위를 판단하기 어렵습니다.`,
@@ -123,6 +124,7 @@ const ja = {
   reportHypothesisNone: '（仮説が入力されていないため検証を省略します。）',
   reportHypothesisLabel: '入力仮説',
   reportHypothesisResult: '結果',
+  reportHypothesisWinnerLine: (label: string, pct: string) => `${label}(${pct})が最も高い選択を受けました。`,
   reportHypothesisNote: 'この方向との一致は結果数値をもとにご自身で判断してください。',
   reportTie: (a: string, b: string, pa: string, pb: string) =>
     `**${a}**と**${b}**がそれぞれ${pa}、${pb}でほぼ同率です。有意な優位を判断するのは困難です。`,

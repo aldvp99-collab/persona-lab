@@ -120,7 +120,7 @@ export default function Dashboard() {
       </div>
 
       {/* 세그먼트 상위 속성 */}
-      <div className={`grid gap-4 ${result.options.length > 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'}`}>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         {result.options.map((opt, i) => (
           <div key={opt.optionId} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <h3 className="text-sm font-bold mb-4" style={{ color: COLORS[i] }}>

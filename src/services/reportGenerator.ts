@@ -61,7 +61,7 @@ export function generateReport(
     lines.push(t.reportHypothesisNone);
   } else {
     lines.push(`${t.reportHypothesisLabel}: "${config.hypothesis}"`);
-    lines.push(`${t.reportHypothesisResult}: ${winner.label}(${fmt(winner.percentage)})${lang === 'ko' ? '이 가장 높은 선택을 받았습니다.' : 'が最も高い選択を受けました。'} ${t.reportHypothesisNote}`);
+    lines.push(`${t.reportHypothesisResult}: ${t.reportHypothesisWinnerLine(winner.label, fmt(winner.percentage))} ${t.reportHypothesisNote}`);
   }
   lines.push('');
 
